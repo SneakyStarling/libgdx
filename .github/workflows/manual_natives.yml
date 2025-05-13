@@ -41,13 +41,13 @@ jobs:
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
           export PATH=$PATH:$JAVA_HOME/bin
 
-          # Build natives with proper exclusions
+          # Build natives with Android exclusion
           cd /build
           ./gradlew jnigen jnigenBuildLinuxARM64 \
-          -PskipAndroid=true \
-          -x :tests:gdx-tests-android:* \
-          --no-daemon \
-          --warning-mode none
+            --exclude-project :extensions:gdx-android \
+            --exclude-project :tests:gdx-tests-android \
+            --no-daemon \
+            --warning-mode none
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4

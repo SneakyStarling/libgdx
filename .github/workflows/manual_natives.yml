@@ -29,6 +29,7 @@ jobs:
           --privileged
           --volume ${{ github.workspace }}:/build
         run: |
+          # Install ARM64-compatible build tools
           apt-get update && apt-get install -y \
               openjdk-17-jdk \
               crossbuild-essential-arm64 \
@@ -36,12 +37,14 @@ jobs:
               libxrandr-dev:arm64 libx11-dev:arm64 \
               zlib1g:arm64 ccache gradle
 
+          # Configure Java environment
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
           export PATH=$PATH:$JAVA_HOME/bin
 
+          # Build natives with proper exclusions
           cd /build
           ./gradlew jnigen jnigenBuildLinuxARM64 \
-            -x :android:* \
+            -x :extensions:gdx-android:* \
             -x :tests:gdx-tests-android:* \
             --no-daemon
 

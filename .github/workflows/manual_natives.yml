@@ -20,18 +20,26 @@ jobs:
     - name: Build in ARM64 container
       uses: addnab/docker-run-action@v3
       with:
-        image: docker.io/debian:bookworm
+        image: debian:bookworm
         options: |
           --platform linux/arm64
           --privileged
           --volume ${{ github.workspace }}:/build
         run: |
+          # Install ARM64-compatible build tools
           apt-get update && apt-get install -y \
               openjdk-17-jdk \
-              gcc g++ gcc-multilib g++-multilib \
-              mesa-common-dev libxxf86vm-dev libxrandr-dev \
-              libx11-dev lib32z1 gradle
+              crossbuild-essential-arm64 \
+              mesa-common-dev:arm64 libxxf86vm-dev:arm64 \
+              libxrandr-dev:arm64 libx11-dev:arm64 \
+              zlib1g:arm64 ccache gradle
 
+          # Configure Java environment
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64" >> /etc/environment
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+          export PATH=$PATH:$JAVA_HOME/bin
+
+          # Build natives
           cd /build
           ./gradlew jnigen jnigenBuildLinux -Dos=linux -Darch=arm64
 

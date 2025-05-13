@@ -44,9 +44,10 @@ jobs:
           # Build natives with proper exclusions
           cd /build
           ./gradlew jnigen jnigenBuildLinuxARM64 \
-            -x :extensions:gdx-android:* \
-            -x :tests:gdx-tests-android:* \
-            --no-daemon
+          -PskipAndroid=true \
+          -x :tests:gdx-tests-android:* \
+          --no-daemon \
+          --warning-mode none
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4

@@ -1,13 +1,16 @@
 name: Build Linux ARM64 Natives (Bookworm)
-
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
   build-arm64:
     runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+      options: --privileged
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -17,40 +20,18 @@ jobs:
       with:
         platforms: arm64
 
-    - name: Build in ARM64 container
-      uses: addnab/docker-run-action@v3
-      with:
-        image: debian:bookworm
-        options: |
-          --platform linux/arm64
-          --privileged
-          --volume ${{ github.workspace }}:/build
-        run: |
-          # Install ARM64-compatible build tools
-          apt-get update && apt-get install -y \
-              openjdk-17-jdk \
-              crossbuild-essential-arm64 \
-              mesa-common-dev:arm64 libxxf86vm-dev:arm64 \
-              libxrandr-dev:arm64 libx11-dev:arm64 \
-              zlib1g:arm64 ccache gradle
-
-          # Configure Java environment
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64" >> /etc/environment
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
-          export PATH=$PATH:$JAVA_HOME/bin
-
-          # Build natives
-          cd /build
-          ./gradlew jnigen jnigenBuildLinux -Dos=linux -Darch=arm64
-
-    - name: Package artifacts
+    - name: Install build dependencies
       run: |
-        mkdir -p natives/arm64
-        cp -r libgdx/jnigen-build/libs/linux/arm64/* natives/arm64/
-        cp -r extensions/gdx-bullet/jnigen-build/libs/linux/arm64/* natives/arm64/
-        zip -r linux-arm64-natives.zip natives
+        apt-get update && apt-get install -y \
+            openjdk-17-jdk \
+            crossbuild-essential-arm64 \
+            mesa-common-dev:arm64 libxxf86vm-dev:arm64 \
+            libxrandr-dev:arm64 libx11-dev:arm64 \
+            zlib1g:arm64 ccache gradle
 
-    - name: Upload release assets
-      uses: softprops/action-gh-release@v1
-      with:
-        files: linux-arm64-natives.zip
+    - name: Build Linux ARM64 natives
+      run: |
+        ./gradlew jnigen jnigenBuildLinuxARM64 \
+          -x :android:* \
+          -x :tests:gdx-tests-android:* \
+          --no-daemon

@@ -1,4 +1,5 @@
-name: Build Linux ARM64 Natives (Bookworm)
+name: Build Linux ARM64 Desktop Natives
+
 on:
   workflow_dispatch:
   push:
@@ -7,10 +8,6 @@ on:
 jobs:
   build-arm64:
     runs-on: ubuntu-latest
-    container:
-      image: debian:bookworm
-      options: --privileged
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -20,18 +17,38 @@ jobs:
       with:
         platforms: arm64
 
-    - name: Install build dependencies
-      run: |
-        apt-get update && apt-get install -y \
-            openjdk-17-jdk \
-            crossbuild-essential-arm64 \
-            mesa-common-dev:arm64 libxxf86vm-dev:arm64 \
-            libxrandr-dev:arm64 libx11-dev:arm64 \
-            zlib1g:arm64 ccache gradle
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
-    - name: Build Linux ARM64 natives
-      run: |
-        ./gradlew jnigen jnigenBuildLinuxARM64 \
-          -x :android:* \
-          -x :tests:gdx-tests-android:* \
-          --no-daemon
+    - name: Build in ARM64 container
+      uses: addnab/docker-run-action@v3
+      with:
+        image: debian:bookworm
+        options: |
+          --platform linux/arm64
+          --privileged
+          --volume ${{ github.workspace }}:/build
+        run: |
+          apt-get update && apt-get install -y \
+              openjdk-17-jdk \
+              crossbuild-essential-arm64 \
+              mesa-common-dev:arm64 libxxf86vm-dev:arm64 \
+              libxrandr-dev:arm64 libx11-dev:arm64 \
+              zlib1g:arm64 ccache gradle
+
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+          export PATH=$PATH:$JAVA_HOME/bin
+
+          cd /build
+          ./gradlew jnigen jnigenBuildLinuxARM64 \
+            -x :android:* \
+            -x :tests:gdx-tests-android:* \
+            --no-daemon
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-arm64-natives
+        path: |
+          libgdx/jnigen-build/libs/linux/arm64/*
+          extensions/gdx-bullet/jnigen-build/libs/linux/arm64/*

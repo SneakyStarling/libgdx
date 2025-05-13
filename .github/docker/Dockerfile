@@ -1,4 +1,5 @@
-FROM debian:bookworm  # GLIBC 2.36 base
+# GLIBC 2.36 base
+FROM debian:bookworm
 
 # Install ARM64-native build tools
 RUN apt-get update && apt-get install -y \

@@ -1,7 +1,6 @@
-# .github/docker/Dockerfile
 FROM debian:bookworm
 
-# Install native ARM64 build tools (no cross-compilation needed)
+# Install native ARM64 build tools
 RUN apt-get update && apt-get install -y \
     build-essential \
     mesa-common-dev libxxf86vm-dev \
@@ -17,7 +16,8 @@ RUN ./gradlew jnigen jnigenBuildLinuxARM64 \
     --no-daemon \
     --warning-mode none
 
-# Preserve full directory structure for artifacts
-RUN mkdir -p /output && \
+# Preserve artifacts with proper directory structure
+RUN mkdir -p /output/gdx/libs && \
+    mkdir -p /output/extensions && \
     cp -r gdx/libs/linuxarm64 /output/gdx/libs/ && \
-    find extensions -name 'linuxarm64' -exec cp -r {} /output/extensions/ \; 
+    find extensions -name 'linuxarm64' -exec sh -c 'cp -r "{}" /output/extensions/$(basename $(dirname $(dirname "{}")))' \;

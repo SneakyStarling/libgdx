@@ -1,4 +1,4 @@
-name: Build Linux ARM64 Desktop Natives
+name: Build Linux ARM64 Natives (Bookworm)
 
 on:
   workflow_dispatch:
@@ -7,33 +7,26 @@ on:
 
 jobs:
   build-arm64:
-    runs-on: ubuntu-22.04-arm
-    timeout-minutes: 120  # Increase timeout to 2 hours
+    runs-on: ubuntu-24.04-arm  # Native ARM64 runner
+    timeout-minutes: 20  # Should complete in 5-10 mins
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         submodules: 'recursive'
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Build ARM64 natives with Debian Bookworm
+    - name: Build in Debian Bookworm container
       uses: docker/build-push-action@v4
       with:
         context: .
         file: .github/docker/Dockerfile
         platforms: linux/arm64
-        build-args: |
-          DEBIAN_VERSION=bookworm
         outputs: type=local,dest=./artifacts
 
     - name: Verify artifacts
       run: |
-        echo "Directory structure:"
-        tree artifacts || ls -R artifacts
-        echo "Checking for natives:"
-        find artifacts -name '*.so'
+        ls -R artifacts  # Debug directory structure
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -41,5 +34,4 @@ jobs:
         name: linux-arm64-natives
         path: |
           artifacts/gdx/libs/linuxarm64/*
-          artifacts/extensions/**/libs/linuxarm64/*
-        if-no-files-found: error
+          artifacts/extensions/**/linuxarm64/*

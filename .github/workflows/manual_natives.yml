@@ -7,8 +7,8 @@ on:
 
 jobs:
   build-arm64:
-    runs-on: ubuntu-24.04-arm  # Native ARM64 runner
-    timeout-minutes: 20  # Should complete in 5-10 mins
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
 
     steps:
     - name: Checkout repository
@@ -24,14 +24,13 @@ jobs:
         platforms: linux/arm64
         outputs: type=local,dest=./artifacts
 
-    - name: Verify artifacts
-      run: |
-        ls -R artifacts  # Debug directory structure
-
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: linux-arm64-natives
         path: |
           artifacts/gdx/libs/linuxarm64/*
-          artifacts/extensions/**/linuxarm64/*
+          artifacts/extensions/gdx-bullet/libs/linuxarm64/*
+          artifacts/extensions/gdx-box2d/libs/linuxarm64/*
+          artifacts/extensions/gdx-freetype/libs/linuxarm64/*
+        include-hidden-files: true  # In case of hidden directories

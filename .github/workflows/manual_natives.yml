@@ -7,30 +7,44 @@ on:
 
 jobs:
   build-arm64:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         submodules: 'recursive'
 
-    - name: Build Linux ARM64 natives
-      uses: ./.github/actions/build-linux-natives
+    - name: Set up QEMU ARM64
+      uses: docker/setup-qemu-action@v2
       with:
-        arch: arm64
-        docker-image: debian:bookworm
-        build-command: |
-          apt-get update && apt-get install -y \
-              crossbuild-essential-arm64 \
-              mesa-common-dev:arm64 libxxf86vm-dev:arm64 \
-              libxrandr-dev:arm64 libx11-dev:arm64 \
-              zlib1g:arm64
-          ./gradlew jnigen jnigenBuildLinuxARM64
+        platforms: arm64
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build ARM64 natives with Debian Bookworm
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        platforms: linux/arm64
+        build-args: |
+          GLIBC_VERSION=2.36-9+deb12u10
+        tags: libgdx-arm64-build
+        outputs: type=local,dest=./artifacts
+      env:
+        BUILD_COMMAND: >
+          apt-get update && apt-get install -y
+          crossbuild-essential-arm64
+          mesa-common-dev:arm64 libxxf86vm-dev:arm64
+          libxrandr-dev:arm64 libx11-dev:arm64
+          zlib1g:arm64 ccache gradle
+          && ./gradlew jnigen jnigenBuildLinuxARM64
+          -PskipAndroid=true --no-daemon
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: linux-arm64-natives
         path: |
-          libgdx/jnigen-build/libs/linux/arm64/*
-          extensions/gdx-bullet/jnigen-build/libs/linux/arm64/*
+          artifacts/gdx/libs/linuxarm64/*
+          artifacts/extensions/**/libs/linuxarm64/*

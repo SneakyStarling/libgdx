@@ -7,17 +7,13 @@ on:
 
 jobs:
   build-arm64:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04-arm
+    timeout-minutes: 120  # Increase timeout to 2 hours
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         submodules: 'recursive'
-
-    - name: Set up QEMU ARM64
-      uses: docker/setup-qemu-action@v2
-      with:
-        platforms: arm64
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -26,11 +22,18 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
-        file: .github/docker/Dockerfile  # Explicit Dockerfile path
+        file: .github/docker/Dockerfile
         platforms: linux/arm64
         build-args: |
           DEBIAN_VERSION=bookworm
         outputs: type=local,dest=./artifacts
+
+    - name: Verify artifacts
+      run: |
+        echo "Directory structure:"
+        tree artifacts || ls -R artifacts
+        echo "Checking for natives:"
+        find artifacts -name '*.so'
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -39,3 +42,4 @@ jobs:
         path: |
           artifacts/gdx/libs/linuxarm64/*
           artifacts/extensions/**/libs/linuxarm64/*
+        if-no-files-found: error

@@ -1,0 +1,48 @@
+name: Build Linux ARM64 Natives (Bookworm)
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+
+jobs:
+  build-arm64:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up QEMU ARM64
+      uses: docker/setup-qemu-action@v2
+      with:
+        platforms: arm64
+
+    - name: Build in ARM64 container
+      uses: addnab/docker-run-action@v3
+      with:
+        image: docker.io/debian:bookworm
+        options: |
+          --platform linux/arm64
+          --privileged
+          --volume ${{ github.workspace }}:/build
+        run: |
+          apt-get update && apt-get install -y \
+              openjdk-17-jdk \
+              gcc g++ gcc-multilib g++-multilib \
+              mesa-common-dev libxxf86vm-dev libxrandr-dev \
+              libx11-dev lib32z1 gradle
+
+          cd /build
+          ./gradlew jnigen jnigenBuildLinux -Dos=linux -Darch=arm64
+
+    - name: Package artifacts
+      run: |
+        mkdir -p natives/arm64
+        cp -r libgdx/jnigen-build/libs/linux/arm64/* natives/arm64/
+        cp -r extensions/gdx-bullet/jnigen-build/libs/linux/arm64/* natives/arm64/
+        zip -r linux-arm64-natives.zip natives
+
+    - name: Upload release assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: linux-arm64-natives.zip

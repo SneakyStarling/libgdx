@@ -1,17 +1,23 @@
+# .github/docker/Dockerfile
 FROM debian:bookworm
 
-# Install ARM64-compatible build tools
+# Install native ARM64 build tools (no cross-compilation needed)
 RUN apt-get update && apt-get install -y \
-    crossbuild-essential-arm64 \
-    mesa-common-dev:arm64 libxxf86vm-dev:arm64 \
-    libxrandr-dev:arm64 libx11-dev:arm64 \
-    zlib1g:arm64 ccache gradle openjdk-17-jdk
+    build-essential \
+    mesa-common-dev libxxf86vm-dev \
+    libxrandr-dev libx11-dev \
+    zlib1g ccache gradle openjdk-17-jdk
 
 WORKDIR /build
 COPY . .
 
-# Build natives with Android exclusion
+# Build only ARM64 natives
 RUN ./gradlew jnigen jnigenBuildLinuxARM64 \
     -PskipAndroid=true \
     --no-daemon \
     --warning-mode none
+
+# Preserve full directory structure for artifacts
+RUN mkdir -p /output && \
+    cp -r gdx/libs/linuxarm64 /output/gdx/libs/ && \
+    find extensions -name 'linuxarm64' -exec cp -r {} /output/extensions/ \; 

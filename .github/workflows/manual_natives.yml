@@ -26,20 +26,11 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
+        file: .github/docker/Dockerfile  # Explicit Dockerfile path
         platforms: linux/arm64
         build-args: |
-          GLIBC_VERSION=2.36-9+deb12u10
-        tags: libgdx-arm64-build
+          DEBIAN_VERSION=bookworm
         outputs: type=local,dest=./artifacts
-      env:
-        BUILD_COMMAND: >
-          apt-get update && apt-get install -y
-          crossbuild-essential-arm64
-          mesa-common-dev:arm64 libxxf86vm-dev:arm64
-          libxrandr-dev:arm64 libx11-dev:arm64
-          zlib1g:arm64 ccache gradle
-          && ./gradlew jnigen jnigenBuildLinuxARM64
-          -PskipAndroid=true --no-daemon
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4

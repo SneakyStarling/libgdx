@@ -29,8 +29,7 @@ jobs:
       with:
         name: linux-arm64-natives
         path: |
-          artifacts/gdx/libs/linuxarm64/*
-          artifacts/extensions/gdx-bullet/libs/linuxarm64/*
-          artifacts/extensions/gdx-box2d/libs/linuxarm64/*
-          artifacts/extensions/gdx-freetype/libs/linuxarm64/*
-        include-hidden-files: true  # In case of hidden directories
+          artifacts/build/gdx/libs/linuxarm64/*
+          artifacts/build/extensions/gdx-bullet/libs/linuxarm64/*
+          artifacts/build/extensions/gdx-box2d/gdx-box2d/libs/linuxarm64/*
+          artifacts/build/extensions/gdx-freetype/libs/linuxarm64/*

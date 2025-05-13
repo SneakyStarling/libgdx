@@ -1,6 +1,6 @@
-FROM debian:bookworm
+FROM debian:bookworm  # GLIBC 2.36 base
 
-# Install native ARM64 build tools
+# Install ARM64-native build tools
 RUN apt-get update && apt-get install -y \
     build-essential \
     mesa-common-dev libxxf86vm-dev \
@@ -10,14 +10,14 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /build
 COPY . .
 
-# Build only ARM64 natives
+# Build only ARM64 desktop natives
 RUN ./gradlew jnigen jnigenBuildLinuxARM64 \
     -PskipAndroid=true \
     --no-daemon \
     --warning-mode none
 
-# Preserve artifacts with proper directory structure
+# Copy artifacts with exact directory structure
 RUN mkdir -p /output/gdx/libs && \
     mkdir -p /output/extensions && \
     cp -r gdx/libs/linuxarm64 /output/gdx/libs/ && \
-    find extensions -name 'linuxarm64' -exec sh -c 'cp -r "{}" /output/extensions/$(basename $(dirname $(dirname "{}")))' \;
+    find extensions -name 'linuxarm64' -exec sh -c 'mkdir -p /output/extensions/$$(basename $$(dirname $$(dirname "{}"))) && cp -r "{}" /output/extensions/$$(basename $$(dirname $$(dirname "{}")))/' \;

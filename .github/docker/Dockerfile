@@ -20,12 +20,20 @@ RUN apt-get install -y \
 WORKDIR /build
 COPY . .
 
-RUN chmod +x gradlew
+# Set permissions and fix Gradle version
+RUN chmod +x gradlew && \
+    ./gradlew wrapper --gradle-version 4.10.3
 
 # Fix Gradle version and Android exclusion
 RUN ./gradlew wrapper --gradle-version 4.10.3 && \
     sed -i 's/compile/implementation/g' tests/gdx-tests/build.gradle && \
     sed -i '/android/d' settings.gradle
+
+
+# Remove Android modules
+# RUN sed -i '/android/d' settings.gradle && \
+#    sed -i '/gdx-tests-android/d' settings.gradle
+
 
 # Build ARM64 natives
 RUN chmod +x gradlew && \

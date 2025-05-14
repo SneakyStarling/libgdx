@@ -29,7 +29,8 @@ RUN chmod +x gradlew && \
 #    sed -i '/android/d' settings.gradle
 
 # Remove Android modules
-RUN sed -i '/android/d' settings.gradle && \
+RUN ./gradlew wrapper --gradle-version 4.10.3 && \
+    sed -i '/android/d' settings.gradle && \
     sed -i '/gdx-tests-android/d' settings.gradle
 
 # Build ARM64 natives

@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y wget gnupg ca-certificates && \
     apt-get update && apt-get install -y zulu8-jdk
 
 # Verify Java installation path
-RUN ls -l /usr/lib/jvm/zulu-8-aarch64 
+RUN ls -l /usr/lib/jvm/zulu8-ca-aarch64 
 
 # Install build tools
 RUN apt-get install -y \
@@ -29,4 +29,4 @@ RUN chmod +x gradlew && \
     ./gradlew jnigen jnigenBuildLinux64 \
       --no-daemon \
       --refresh-dependencies \
-      -Dorg.gradle.java.home=/usr/lib/jvm/zulu-8-aarch64
+      -Dorg.gradle.java.home=/usr/lib/jvm/zulu8-ca-aarch64

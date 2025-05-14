@@ -22,15 +22,10 @@ COPY . .
 
 # Set permissions and fix Gradle version
 RUN chmod +x gradlew && \
-    ./gradlew wrapper --gradle-version 4.10.3
-
-# RUN ./gradlew wrapper --gradle-version 4.10.3 && \
-#    sed -i 's/compile/implementation/g' tests/gdx-tests/build.gradle && \
-#    sed -i '/android/d' settings.gradle
+    sed -i '/distributionUrl/ s/gradle-.*/gradle-4.10.3-bin.zip/' gradle/wrapper/gradle-wrapper.properties
 
 # Remove Android modules
-RUN ./gradlew wrapper --gradle-version 4.10.3 && \
-    sed -i '/android/d' settings.gradle && \
+RUN sed -i '/android/d' settings.gradle && \
     sed -i '/gdx-tests-android/d' settings.gradle
 
 # Build ARM64 natives

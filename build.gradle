@@ -18,10 +18,10 @@ apply from: "gradle/dependencies.gradle"
 
 buildscript {
     repositories {
-        mavenCentral()  // Use Maven Central instead of JCenter
+        mavenCentral()
     }
     dependencies {
-        classpath "com.badlogicgames.gdx:gdx-jnigen:1.9.5"  // Correct artifact
+        classpath "com.badlogicgames.gdx:gdx-jnigen:1.9.5" 
     }
 }
 
@@ -29,7 +29,7 @@ allprojects {
     group = 'com.badlogicgames.gdx'
     version = '1.9.5-SNAPSHOT'
 
-    apply plugin: com.badlogic.gdx.gradle.plugins.JnigenPlugin  // Use class name
+    apply plugin: com.badlogic.gdx.jnigen.JnigenPlugin 
 
     jnigen {
         sharedLibName = "gdx"

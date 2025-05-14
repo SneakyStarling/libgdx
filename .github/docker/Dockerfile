@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y wget gnupg ca-certificates && \
 # Find the actual JDK installation path
 RUN JAVA_HOME=$(find /usr/lib/jvm -maxdepth 1 -name "zulu*8*" -type d | head -n1) && \
     echo "JAVA_HOME=${JAVA_HOME}" >> /etc/environment
-
+    
 # Install build tools
 RUN apt-get install -y \
     build-essential \
@@ -20,14 +20,17 @@ RUN apt-get install -y \
 WORKDIR /build
 COPY . .
 
-# Remove Android modules from settings.gradle
+# Remove ALL Android references
 RUN sed -i '/android/d' settings.gradle && \
-    sed -i '/gdx-tests-android/d' settings.gradle
+    sed -i '/gdx-tests-android/d' settings.gradle && \
+    find . -name "*.gradle" -exec sed -i '/gdx-tests-android/d' {} \; && \
+    find . -name "*.gradle" -exec sed -i '/android/d' {} \;
 
-# Build using dynamically detected Java home
+# Build ARM64 natives
 RUN chmod +x gradlew && \
     . /etc/environment && \
     ./gradlew jnigen jnigenBuildLinux64 \
       --no-daemon \
       --refresh-dependencies \
+      -x test \
       -Dorg.gradle.java.home=${JAVA_HOME}

@@ -20,6 +20,8 @@ RUN apt-get install -y \
 WORKDIR /build
 COPY . .
 
+RUN chmod +x gradlew
+
 # Fix Gradle version and Android exclusion
 RUN ./gradlew wrapper --gradle-version 4.10.3 && \
     sed -i 's/compile/implementation/g' tests/gdx-tests/build.gradle && \

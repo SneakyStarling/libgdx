@@ -14,6 +14,8 @@
  * limitations under the License.
  ******************************************************************************/
 
+import com.badlogic.gdx.jnigen.JnigenPlugin
+
 apply from: "gradle/dependencies.gradle"
 
 buildscript {
@@ -21,7 +23,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.badlogicgames.gdx:gdx-jnigen:1.9.5" 
+        classpath "com.badlogicgames.gdx:gdx-jnigen:1.9.5"
     }
 }
 
@@ -29,7 +31,7 @@ allprojects {
     group = 'com.badlogicgames.gdx'
     version = '1.9.5-SNAPSHOT'
 
-    apply plugin: com.badlogic.gdx.jnigen.JnigenPlugin 
+    apply plugin: JnigenPlugin  // Use imported class directly
 
     jnigen {
         sharedLibName = "gdx"
@@ -37,12 +39,6 @@ allprojects {
             cppExcludes = ["**/*.cpp"]
             headerDirs = ["src/main/jni"] 
         }
-        add(Linux, ARM, 64)  // Explicit ARM64 target
+        add(Linux, ARM, 64)
     }
-}
-
-task fetchNatives << {
-    ant.importBuild "fetch.xml"
-    fetch.execute()
-    copy.execute()
 }

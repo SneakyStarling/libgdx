@@ -11,10 +11,12 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     mesa-common-dev libxxf86vm-dev \
     libxrandr-dev libx11-dev \
-    zlib1g ccache gradle zulu8-jdk 
+    zlib1g ccache gradle zulu8-jdk
 
 WORKDIR /build
 COPY . .
+
+RUN chmod +x gradlew
 
 # Build ARM64 natives for libGDX 1.9.5
 RUN ./gradlew jnigen jnigenBuildLinux64 \

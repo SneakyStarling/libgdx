@@ -38,12 +38,18 @@ allprojects {
     repositories {
         mavenCentral()
         jcenter()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
 
-    // Apply Java plugin for Jnigen compatibility
-    apply plugin: "java"
+    // Native jnigen configuration (no plugin needed)
+    tasks.withType(JavaCompile) {
+        options.compilerArgs += ['-h', file("${projectDir}/jni")]
+    }
+
+    task jnigenBuildLinuxARM64(type: Exec) {
+        commandLine 'make', '-C', 'jni'
+    }
 }
+
 
 // Configure jnigen at the root level
 task jnigen(type: com.badlogic.gdx.jnigen.JnigenTask) {

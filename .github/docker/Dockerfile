@@ -20,12 +20,6 @@ RUN apt-get install -y \
 WORKDIR /build
 COPY . .
 
-# Remove ALL Android references
-RUN sed -i '/android/d' settings.gradle && \
-    sed -i '/gdx-tests-android/d' settings.gradle && \
-    find . -name "*.gradle" -exec sed -i '/gdx-tests-android/d' {} \; && \
-    find . -name "*.gradle" -exec sed -i '/android/d' {} \;
-
 # Build ARM64 natives
 RUN chmod +x gradlew && \
     . /etc/environment && \

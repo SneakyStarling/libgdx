@@ -16,44 +16,22 @@
 
 apply from: "gradle/dependencies.gradle"
 
+plugins {
+    id("com.badlogicgames.gdx.gdx-jnigen") version "1.9.5"
+}
 
 allprojects {
     group = 'com.badlogicgames.gdx'
     version = '1.9.5-SNAPSHOT'
 
-    buildscript {
-        repositories { jcenter() }
-        dependencies {
-            classpath "com.badlogicgames.gdx:gdx-jnigen-gradle:1.9.5"  // Match libGDX version
-        }
-    }
-    
-    apply plugin: "com.badlogicgames.gdx.gdx-jnigen"
-    
     jnigen {
         sharedLibName = "gdx"
         all {
             cppExcludes = ["**/*.cpp"]
-            headerDirs = ["src/main/jni"] 
+            headerDirs = ["src/main/jni"]
         }
         add(Linux, ARM, 64)  // Explicit ARM64 target
     }
-
-    /**
-    buildscript {
-        repositories {
-            mavenCentral()
-            jcenter()
-            maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        }
-    }
-
-    repositories {
-        mavenCentral()
-        jcenter()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-    }
-    **/
 }
 
 task fetchNatives << {

@@ -50,3 +50,7 @@ include ":tests:gdx-tests-lwjgl"
 include ":tests:gdx-tests-lwjgl3"
 
 rootProject.name = "libgdx"
+
+include 'core', 'desktop'
+project(':android').projectDir = new File('disabled-modules/android')
+project(':tests:gdx-tests-android').projectDir = new File('disabled-modules/tests-android')

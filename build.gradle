@@ -16,28 +16,32 @@
 
 apply from: "gradle/dependencies.gradle"
 
-buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        classpath "com.badlogicgames.gdx:gdx-jnigen-gradle:1.9.5"
-    }
-}
-
 allprojects {
     group = 'com.badlogicgames.gdx'
     version = '1.9.5-SNAPSHOT'
-}
 
-apply plugin: "com.badlogicgames.gdx.gdx-jnigen"
-
-jnigen {
-    sharedLibName = "gdx"
-    all {
-        cppExcludes = ["**/*.cpp"]
-        headerDirs = ["src/main/jni"]
+    buildscript {
+        repositories {
+            mavenCentral()
+            jcenter()
+            maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        }
     }
-    add(Linux, ARM, 64)
+
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+
+    // Configure jnigen directly (no plugin needed)
+    tasks.withType(com.badlogic.gdx.jnigen.JnigenTask) {
+        sharedLibName = "gdx"
+        all {
+            cppExcludes = ["**/*.cpp"]
+            headerDirs = ["src/main/jni"]
+        }
+        add(Linux, ARM, 64)
+    }
 }
+

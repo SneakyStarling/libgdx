@@ -16,20 +16,28 @@
 
 apply from: "gradle/dependencies.gradle"
 
-allprojects {
-    group = 'com.badlogicgames.gdx'
-    version = '1.9.5-SNAPSHOT'
-
-    apply plugin: "java"
-
-    // Configure jnigen through the JDK plugin (no separate plugin needed)
-    tasks.withType(com.badlogic.gdx.jnigen.JnigenTask) {
-        sharedLibName = "gdx"
-        all {
-            cppExcludes = ["**/*.cpp"]
-            headerDirs = ["src/main/jni"] 
-        }
-        add(Linux, ARM, 64)
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "com.badlogicgames.gdx:gdx-jnigen-gradle:1.9.5"
     }
 }
 
+allprojects {
+    group = 'com.badlogicgames.gdx'
+    version = '1.9.5-SNAPSHOT'
+}
+
+apply plugin: "com.badlogicgames.gdx.gdx-jnigen"
+
+jnigen {
+    sharedLibName = "gdx"
+    all {
+        cppExcludes = ["**/*.cpp"]
+        headerDirs = ["src/main/jni"]
+    }
+    add(Linux, ARM, 64)
+}

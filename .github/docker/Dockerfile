@@ -7,11 +7,11 @@ RUN apt-get update && apt-get install -y wget gnupg ca-certificates && \
     apt-get update && apt-get install -y zulu8-jdk
 
 # Install build tools
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
     build-essential \
     mesa-common-dev libxxf86vm-dev \
     libxrandr-dev libx11-dev \
-    zlib1g ccache
+    zlib1g ccache unzip 
 
 WORKDIR /build
 COPY . .

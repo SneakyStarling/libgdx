@@ -32,5 +32,7 @@ RUN chmod +x gradlew && \
     ./gradlew jnigen jnigenBuildLinux64 \
       --no-daemon \
       --refresh-dependencies \
+      --stacktrace \
+      --info \
       -x test \
       -Dorg.gradle.java.home=${JAVA_HOME}

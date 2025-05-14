@@ -16,19 +16,26 @@
 
 apply from: "gradle/dependencies.gradle"
 
-plugins {
-    id("com.badlogicgames.gdx.gdx-jnigen") version "1.9.5"
+buildscript {
+    repositories {
+        mavenCentral()  // Use Maven Central instead of JCenter
+    }
+    dependencies {
+        classpath "com.badlogicgames.gdx:gdx-jnigen:1.9.5"  // Correct artifact
+    }
 }
 
 allprojects {
     group = 'com.badlogicgames.gdx'
     version = '1.9.5-SNAPSHOT'
 
+    apply plugin: com.badlogic.gdx.gradle.plugins.JnigenPlugin  // Use class name
+
     jnigen {
         sharedLibName = "gdx"
         all {
             cppExcludes = ["**/*.cpp"]
-            headerDirs = ["src/main/jni"]
+            headerDirs = ["src/main/jni"] 
         }
         add(Linux, ARM, 64)  // Explicit ARM64 target
     }
@@ -39,4 +46,3 @@ task fetchNatives << {
     fetch.execute()
     copy.execute()
 }
-
